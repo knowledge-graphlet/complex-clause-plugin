@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.1.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.1.0 https://maven.apache.org/xsd/maven-4.1.0.xsd">
+    <modelVersion>4.1.0</modelVersion>
+
+    <parent>
+        <groupId>network.ike.platform</groupId>
+        <artifactId>ike-parent</artifactId>
+        <version>106</version>
+        <relativePath/>
+    </parent>
+
+    <groupId>network.ike.komet</groupId>
+    <artifactId>complex-clause-plugin</artifactId>
+    <version>1-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+    <name>Complex Clause Plugin</name>
+    <description>
+        Komet plugin for complex concept clauses: the Layer-2 / computable-logic criteria that
+        exceed OWL EL++ expressivity (negation, disjunction, numeric comparison, counts, temporal
+        relations). Clauses are stored as a second pattern on the concept (an expression tree of
+        concepts mirroring HL7 ELM nodes), explicated to CQL that joins the inferred EL++ value set
+        with the Layer-2 residual, and evaluated natively over the Tinkar/ANF substrate to
+        met / not-met / indeterminate.
+    </description>
+    <url>https://ike.network/complex-clause-plugin/</url>
+    <inceptionYear>2026</inceptionYear>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <organization>
+        <name>IKE Network</name>
+        <url>https://ike.network</url>
+    </organization>
+
+    <scm>
+        <connection>scm:git:https://github.com/knowledge-graphlet/complex-clause-plugin.git</connection>
+        <developerConnection>scm:git:git@github.com:knowledge-graphlet/complex-clause-plugin.git</developerConnection>
+        <url>https://github.com/knowledge-graphlet/complex-clause-plugin</url>
+        <tag>HEAD</tag>
+    </scm>
+
+    <!-- Required: ike-parent's enforcer fails an inheriting project whose effective site URL still
+         starts with https://ike.network/ike-platform/ while its groupId is not network.ike.platform. -->
+    <distributionManagement>
+        <site>
+            <id>ike-site</id>
+            <url>https://ike.network/complex-clause-plugin/</url>
+        </site>
+    </distributionManagement>
+
+    <properties>
+        <!-- Main-line Komet BOM; manages komet module + tinkar versions. Matches ike-komet-wsr. -->
+        <komet-bom.version>3.0.7-SNAPSHOT</komet-bom.version>
+        <!-- Tinkar version for the test-only datastore providers (not managed by komet-bom);
+             must match the komet-bom-managed tinkar runtime so module-path service binding works. -->
+        <tinkar.version>1.127.2-SNAPSHOT</tinkar.version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>dev.ikm.komet</groupId>
+                <artifactId>komet-bom</artifactId>
+                <version>${komet-bom.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
+        <!-- Knowledge-layout SPI host: KlToolArea / KlSupplementalArea + SupplementalAreaBlueprint,
+             KlArea, AreaGridSettings, KlPreferencesFactory. Version managed by komet-bom. -->
+        <dependency>
+            <groupId>dev.ikm.komet</groupId>
+            <artifactId>knowledge-layout</artifactId>
+        </dependency>
+
+        <!-- Komet framework: ViewProperties + ViewCalculator (the journal view injected into the
+             area; used for subsumption, descriptions, and the inferred axiom tree). -->
+        <dependency>
+            <groupId>dev.ikm.komet</groupId>
+            <artifactId>framework</artifactId>
+        </dependency>
+
+        <!-- Tinkar entity: DiTreeEntity / EntityVertex (the clause graph substrate), calculators. -->
+        <dependency>
+            <groupId>dev.ikm.tinkar</groupId>
+            <artifactId>entity</artifactId>
+        </dependency>
+        <!-- Tinkar common: PrimitiveData, EntityService, UuidT5Generator. -->
+        <dependency>
+            <groupId>dev.ikm.tinkar</groupId>
+            <artifactId>common</artifactId>
+        </dependency>
+
+        <!-- Tinkar Composer: author the complex-clause pattern + ELM operator concepts and write
+             the clause semantic on a concept. -->
+        <dependency>
+            <groupId>dev.ikm.tinkar</groupId>
+            <artifactId>composer</artifactId>
+        </dependency>
+
+        <!-- JavaFX controls/layout for the tool area (tree view + CQL output + verdict badge). -->
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-controls</artifactId>
+        </dependency>
+
+        <!-- Test: JUnit 5 + an ephemeral Tinkar datastore so the clause graph can assign nids and
+             round-trip through a semantic. Versions managed by komet-bom. -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>dev.ikm.tinkar</groupId>
+            <artifactId>data-ephemeral-provider</artifactId>
+            <version>${tinkar.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>dev.ikm.tinkar</groupId>
+            <artifactId>entity-provider</artifactId>
+            <version>${tinkar.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>dev.ikm.tinkar</groupId>
+            <artifactId>executor-provider</artifactId>
+            <version>${tinkar.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>
