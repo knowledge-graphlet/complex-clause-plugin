@@ -59,10 +59,10 @@
 
     <properties>
         <!-- Main-line Komet BOM; manages komet module + tinkar versions. Matches ike-komet-wsr. -->
-        <komet-bom.version>3.0.7-SNAPSHOT</komet-bom.version>
+        <komet-bom.version>3.0.7-installer-logs-SNAPSHOT</komet-bom.version>
         <!-- Tinkar version for the test-only datastore providers (not managed by komet-bom);
              must match the komet-bom-managed tinkar runtime so module-path service binding works. -->
-        <tinkar.version>1.127.2-SNAPSHOT</tinkar.version>
+        <tinkar.version>1.127.2-installer-logs-SNAPSHOT</tinkar.version>
     </properties>
 
     <dependencyManagement>
