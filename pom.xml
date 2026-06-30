@@ -13,7 +13,7 @@
 
     <groupId>network.ike.komet</groupId>
     <artifactId>complex-clause-plugin</artifactId>
-    <version>1-issue-22-SNAPSHOT</version>
+    <version>1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>Complex Clause Plugin</name>
@@ -59,10 +59,10 @@
 
     <properties>
         <!-- Main-line Komet BOM; manages komet module + tinkar versions. Matches ike-komet-wsr. -->
-        <komet-bom.version>3.0.7-issue-22-SNAPSHOT</komet-bom.version>
+        <komet-bom.version>3.0.7-SNAPSHOT</komet-bom.version>
         <!-- Tinkar version for the test-only datastore providers (not managed by komet-bom);
              must match the komet-bom-managed tinkar runtime so module-path service binding works. -->
-        <tinkar.version>1.127.2-issue-22-SNAPSHOT</tinkar.version>
+        <tinkar.version>1.127.2-SNAPSHOT</tinkar.version>
     </properties>
 
     <dependencyManagement>
@@ -70,7 +70,7 @@
             <dependency>
                 <groupId>dev.ikm.komet</groupId>
                 <artifactId>komet-bom</artifactId>
-                <version>3.0.7-issue-22-SNAPSHOT</version>
+                <version>3.0.7-SNAPSHOT</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
