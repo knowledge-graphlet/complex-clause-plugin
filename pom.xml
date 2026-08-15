@@ -13,7 +13,7 @@
 
     <groupId>network.ike.komet</groupId>
     <artifactId>complex-clause-plugin</artifactId>
-    <version>2</version>
+    <version>3-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>Complex Clause Plugin</name>
