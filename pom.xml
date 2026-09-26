@@ -7,7 +7,7 @@
     <parent>
         <groupId>network.ike.platform</groupId>
         <artifactId>ike-parent</artifactId>
-        <version>182</version>
+        <version>184</version>
         <relativePath/>
     </parent>
 
@@ -63,6 +63,7 @@
         <!-- Tinkar version for the test-only datastore providers (not managed by komet-bom);
              must match the komet-bom-managed tinkar runtime so module-path service binding works. -->
         <tinkar.version>1.127.7-8bp-jdk27-SNAPSHOT</tinkar.version>
+        <java.version>27</java.version>
     </properties>
 
     <dependencyManagement>
