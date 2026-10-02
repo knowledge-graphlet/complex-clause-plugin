@@ -16,7 +16,6 @@
 package network.ike.komet.complexclause;
 
 import dev.ikm.tinkar.common.id.PublicIds;
-import dev.ikm.tinkar.common.service.PrimitiveData;
 import dev.ikm.tinkar.common.util.uuid.UuidT5Generator;
 import dev.ikm.tinkar.composer.Composer;
 import dev.ikm.tinkar.composer.Session;
@@ -86,7 +85,7 @@ public final class ClauseStore {
         ComplexClauseBootstrap.ensureBootstrapped();
         EntityProxy reference = concept instanceof EntityProxy entityProxy
                 ? entityProxy
-                : EntityProxy.Concept.make(PrimitiveData.text(concept.nid()), concept.publicId());
+                : EntityProxy.Concept.make(concept.publicId());
         EntityProxy.Semantic semantic = EntityProxy.Semantic.make(PublicIds.of(clauseSemanticUuid(concept)));
         Composer composer = new Composer("complex-clause-write");
         Session session = composer.open(State.ACTIVE, author, module, path);

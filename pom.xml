@@ -63,6 +63,10 @@
         <!-- Tinkar version for the test-only datastore providers (not managed by komet-bom);
              must match the komet-bom-managed tinkar runtime so module-path service binding works. -->
         <tinkar.version>1.127.7-64bit-SNAPSHOT</tinkar.version>
+        <!-- Tinkar starter dataset for the store-backed tests that need a view, loaded into an
+             ephemeral store. Pinned to the version komet/framework and komet-claude-plugin use;
+             ike-parent does not manage it. -->
+        <tinkar-starter-data.version>1.1.2</tinkar-starter-data.version>
         <java.version>27</java.version>
     </properties>
 
@@ -143,4 +147,43 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <!-- Copy the Tinkar starter dataset into target/data so the store-backed tests that
+                 need a view can load it into an ephemeral store (the same artifact and stripped
+                 layout komet/framework and komet-claude-plugin use:
+                 target/data/tinkar-starter-data-reasoned-pb.zip). -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-starter-data</id>
+                        <phase>process-test-resources</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>dev.ikm.data.tinkar</groupId>
+                                    <artifactId>tinkar-starter-data</artifactId>
+                                    <version>${tinkar-starter-data.version}</version>
+                                    <classifier>reasoned-pb</classifier>
+                                    <type>zip</type>
+                                    <overWrite>false</overWrite>
+                                    <outputDirectory>${project.build.directory}/data</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
+                            <stripVersion>true</stripVersion>
+                            <outputDirectory>${project.build.directory}/data</outputDirectory>
+                            <overWriteReleases>false</overWriteReleases>
+                            <overWriteSnapshots>true</overWriteSnapshots>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>

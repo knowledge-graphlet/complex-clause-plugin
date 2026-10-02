@@ -15,7 +15,6 @@
  */
 package network.ike.komet.complexclause.model;
 
-import dev.ikm.tinkar.common.service.PrimitiveData;
 import dev.ikm.tinkar.terms.ConceptFacade;
 import network.ike.komet.complexclause.terms.ComplexClauseTerms;
 
@@ -74,7 +73,7 @@ public enum ClauseSemantic {
                 return semantic;
             }
         }
-        throw new IllegalStateException("No clause semantic for nid: " + meaningNid + " " + PrimitiveData.text(meaningNid));
+        throw new IllegalStateException("No clause semantic for " + ConceptText.identifier(meaningNid));
     }
 
     /**

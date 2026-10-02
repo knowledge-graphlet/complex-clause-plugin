@@ -34,7 +34,6 @@ import network.ike.komet.complexclause.model.ClauseSemantic;
 import network.ike.komet.complexclause.terms.ComplexClauseTerms;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -46,23 +45,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * Validates the complex-clause model, vocabulary bootstrap, CQL projection, and native three-valued
  * evaluation against an in-memory Tinkar datastore.
  */
-@Disabled("""
-        Pre-existing plugin-IT service-discovery gap (not app code): the @BeforeAll startDatastore \
-        throws "No controller found with name: Load Ephemeral Store" under surefire's classpath \
-        runner. PrimitiveData.selectControllerByName resolves DataServiceController via plain \
-        ServiceLoader, which does not see the ephemeral controller the way tinkar's custom runtime \
-        loader does. Every @Test here depends on that datastore, so the whole class is skipped. \
-        Re-enable once the plugin test harness registers the ephemeral controller for the classpath \
-        runner.""")
 class ComplexClausePluginTest {
 
     @BeforeAll
     static void startDatastore() {
-        // Classpath test mode (ike-parent's surefire default): the ephemeral DataServiceController and
-        // the ExecutorController are registered via test-resource META-INF/services. CachingService is
-        // deliberately NOT registered — clearAll() would otherwise drive ExecutorProvider's reset(),
-        // whose PluggableService.first(Controller.class) only resolves under tinkar's custom runtime
-        // loader, not plain ServiceLoader.
+        // Classpath test mode (ike-parent's surefire default): the ephemeral store's controller is
+        // registered in src/test/resources/META-INF/services, because its jar declares it only in
+        // module-info. The other controllers come from the provider jars' own registrations.
         PrimitiveData.selectControllerByName("Load Ephemeral Store");
         PrimitiveData.start();
     }

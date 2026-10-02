@@ -15,7 +15,6 @@
  */
 package network.ike.komet.complexclause.cql;
 
-import dev.ikm.tinkar.common.service.PrimitiveData;
 import dev.ikm.tinkar.coordinate.view.calculator.ViewCalculator;
 import dev.ikm.tinkar.entity.EntityService;
 import dev.ikm.tinkar.terms.ConceptFacade;
@@ -25,6 +24,7 @@ import network.ike.komet.complexclause.model.Clause;
 import network.ike.komet.complexclause.model.ClauseAdaptor;
 import network.ike.komet.complexclause.model.ClauseExpression;
 import network.ike.komet.complexclause.model.ClauseSemantic;
+import network.ike.komet.complexclause.model.ConceptText;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -36,6 +36,9 @@ import java.util.stream.Collectors;
  * value-set reference becomes a {@code valueset … = ECL{ << class }} declaration (the class's inferred
  * subsumption set), and the clause tree becomes the {@code define} body. This is string generation
  * only — no CQL engine, no HAPI FHIR.
+ *
+ * <p>CQL is kept and taken to other systems, so a concept is named in it by a description, or by
+ * its UUID when it has none, and never by a nid ({@link ConceptText}).
  */
 public final class ClauseToCqlProjector {
 
@@ -103,10 +106,10 @@ public final class ClauseToCqlProjector {
     public static String project(ConceptFacade concept, ViewCalculator calculator) {
         ClauseExpression clause = ClauseStore.readClause(concept, calculator)
                 .orElseThrow(() -> new IllegalStateException(
-                        "No complex-concept clause semantic on concept nid " + concept.nid()));
+                        "No complex-concept clause semantic on concept " + ConceptText.identifier(concept)));
         ClauseToCqlProjector projector =
-                new ClauseToCqlProjector(layer1 -> "<< " + projectorName(layer1, calculator), calculator);
-        String defineName = projectorName(concept, calculator);
+                new ClauseToCqlProjector(layer1 -> "<< " + ConceptText.name(layer1, calculator), calculator);
+        String defineName = ConceptText.name(concept, calculator);
         boolean inferredPresent = EntityService.get().semanticNidsForComponentOfPattern(
                 concept.nid(), TinkarTerm.EL_PLUS_PLUS_INFERRED_AXIOMS_PATTERN.nid()).length > 0;
         String header = "";
@@ -229,25 +232,6 @@ public final class ClauseToCqlProjector {
     }
 
     private String text(ConceptFacade concept) {
-        return projectorName(concept, calculator);
-    }
-
-    private static String projectorName(ConceptFacade concept, ViewCalculator calculator) {
-        if (calculator != null) {
-            var description = calculator.getDescriptionText(concept.nid());
-            if (description.isPresent() && !description.get().isBlank()) {
-                return description.get();
-            }
-        }
-        try {
-            String description = concept.description();
-            if (description != null && !description.isBlank()) {
-                return description;
-            }
-        } catch (RuntimeException ignored) {
-            // fall through to primitive text
-        }
-        String primitive = PrimitiveData.text(concept.nid());
-        return primitive != null && !primitive.isBlank() ? primitive : ("nid:" + concept.nid());
+        return ConceptText.name(concept, calculator);
     }
 }
