@@ -17,8 +17,7 @@ package network.ike.komet.complexclause;
 
 import dev.ikm.tinkar.common.service.PrimitiveData;
 import dev.ikm.tinkar.common.util.uuid.UuidT5Generator;
-import dev.ikm.tinkar.component.Component;
-import dev.ikm.tinkar.entity.EntityService;
+import dev.ikm.tinkar.entity.EntityHandle;
 import dev.ikm.tinkar.terms.ConceptFacade;
 import dev.ikm.tinkar.terms.EntityProxy;
 import network.ike.komet.complexclause.bootstrap.ComplexClauseBootstrap;
@@ -72,8 +71,8 @@ class ComplexClausePluginTest {
         ComplexClauseBootstrap.ensureBootstrapped();
         assertTrue(ComplexClauseBootstrap.isBootstrapped(), "pattern present after bootstrap");
         assertFalse(ComplexClauseBootstrap.ensureBootstrapped(), "second bootstrap is a no-op");
-        assertTrue(EntityService.get()
-                        .getEntity((Component) ComplexClauseTerms.COMPLEX_CONCEPT_CLAUSE_PATTERN).isPresent(),
+        assertTrue(EntityHandle.get(ComplexClauseTerms.COMPLEX_CONCEPT_CLAUSE_PATTERN)
+                        .entity().filter(e -> !e.canceled()).isPresent(),
                 "pattern entity is in the store");
     }
 

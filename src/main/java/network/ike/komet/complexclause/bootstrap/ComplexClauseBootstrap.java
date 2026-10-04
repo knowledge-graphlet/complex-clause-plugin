@@ -16,13 +16,12 @@
 package network.ike.komet.complexclause.bootstrap;
 
 import dev.ikm.tinkar.common.service.ServiceLifecycle;
-import dev.ikm.tinkar.component.Component;
 import dev.ikm.tinkar.composer.Composer;
 import dev.ikm.tinkar.composer.Session;
 import dev.ikm.tinkar.composer.assembler.ConceptAssembler;
 import dev.ikm.tinkar.composer.assembler.PatternAssembler;
 import dev.ikm.tinkar.composer.template.FullyQualifiedName;
-import dev.ikm.tinkar.entity.EntityService;
+import dev.ikm.tinkar.entity.EntityHandle;
 import dev.ikm.tinkar.terms.EntityProxy;
 import dev.ikm.tinkar.terms.State;
 import dev.ikm.tinkar.terms.TinkarTerm;
@@ -65,8 +64,8 @@ public class ComplexClauseBootstrap implements ServiceLifecycle {
 
     /** @return {@code true} once the complex-clause pattern is present in the datastore. */
     public static boolean isBootstrapped() {
-        return EntityService.get()
-                .getEntity((Component) ComplexClauseTerms.COMPLEX_CONCEPT_CLAUSE_PATTERN).isPresent();
+        return EntityHandle.get(ComplexClauseTerms.COMPLEX_CONCEPT_CLAUSE_PATTERN)
+                .entity().filter(e -> !e.canceled()).isPresent();
     }
 
     /**
