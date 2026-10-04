@@ -110,8 +110,8 @@ public final class ClauseToCqlProjector {
         ClauseToCqlProjector projector =
                 new ClauseToCqlProjector(layer1 -> "<< " + ConceptText.name(layer1, calculator), calculator);
         String defineName = ConceptText.name(concept, calculator);
-        boolean inferredPresent = EntityService.get().semanticNidsForComponentOfPattern(
-                concept.nid(), TinkarTerm.EL_PLUS_PLUS_INFERRED_AXIOMS_PATTERN.nid()).length > 0;
+        boolean inferredPresent = EntityService.get().semanticsForComponentOfPattern(
+                concept.nid(), TinkarTerm.EL_PLUS_PLUS_INFERRED_AXIOMS_PATTERN.nid()).findAny().isPresent();
         String header = "";
         if (inferredPresent) {
             header = "// Layer 1 — value set from the inferred EL++ classification of \""

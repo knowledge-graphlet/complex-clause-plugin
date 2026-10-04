@@ -23,6 +23,7 @@ import dev.ikm.tinkar.composer.assembler.SemanticAssembler;
 import dev.ikm.tinkar.coordinate.stamp.calculator.Latest;
 import dev.ikm.tinkar.coordinate.stamp.calculator.StampCalculator;
 import dev.ikm.tinkar.entity.EntityService;
+import dev.ikm.tinkar.entity.SemanticEntity;
 import dev.ikm.tinkar.entity.SemanticEntityVersion;
 import dev.ikm.tinkar.entity.graph.DiTreeEntity;
 import dev.ikm.tinkar.terms.ConceptFacade;
@@ -32,6 +33,7 @@ import network.ike.komet.complexclause.bootstrap.ComplexClauseBootstrap;
 import network.ike.komet.complexclause.model.ClauseExpression;
 import network.ike.komet.complexclause.terms.ComplexClauseTerms;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -53,10 +55,10 @@ public final class ClauseStore {
      * @return the clause expression, or empty if the concept has no clause semantic
      */
     public static Optional<ClauseExpression> readClause(ConceptFacade concept, StampCalculator stamp) {
-        int[] semanticNids = EntityService.get().semanticNidsForComponentOfPattern(
-                concept.nid(), ComplexClauseTerms.COMPLEX_CONCEPT_CLAUSE_PATTERN.nid());
-        for (int semanticNid : semanticNids) {
-            Latest<SemanticEntityVersion> latest = stamp.latest(semanticNid);
+        List<SemanticEntity<SemanticEntityVersion>> semantics = EntityService.get().semanticsForComponentOfPattern(
+                concept.nid(), ComplexClauseTerms.COMPLEX_CONCEPT_CLAUSE_PATTERN.nid()).toList();
+        for (SemanticEntity<SemanticEntityVersion> semantic : semantics) {
+            Latest<SemanticEntityVersion> latest = stamp.latest(semantic);
             if (latest.isPresent() && !latest.get().fieldValues().isEmpty()
                     && latest.get().fieldValues().get(0) instanceof DiTreeEntity diTree) {
                 return Optional.of(ClauseExpression.from(diTree));
