@@ -56,7 +56,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 /**
- * The plugin's text under a view, against the Tinkar starter data in an in-memory store
+ * The plugin's text under a view, against the IKE starter set in an in-memory store
  * ({@code IKE-Network/ike-issues#1185}).
  *
  * <p>This is how the plugin runs in Komet: the panel always has a view, and the live path reads
