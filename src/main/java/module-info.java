@@ -45,7 +45,6 @@ module komet.complexclause {
     requires dev.ikm.tinkar.common;
     requires dev.ikm.tinkar.component;
     requires dev.ikm.tinkar.terms;
-    requires dev.ikm.tinkar.composer;
 
     requires org.eclipse.collections.api;
     requires org.slf4j;

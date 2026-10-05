@@ -112,13 +112,6 @@
             <artifactId>common</artifactId>
         </dependency>
 
-        <!-- Tinkar Composer: author the complex-clause pattern + ELM operator concepts and write
-             the clause semantic on a concept. -->
-        <dependency>
-            <groupId>dev.ikm.tinkar</groupId>
-            <artifactId>composer</artifactId>
-        </dependency>
-
         <!-- JavaFX controls/layout for the tool area (tree view + CQL output + verdict badge). -->
         <dependency>
             <groupId>org.openjfx</groupId>

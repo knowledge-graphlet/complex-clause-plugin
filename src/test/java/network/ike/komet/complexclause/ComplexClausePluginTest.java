@@ -17,9 +17,14 @@ package network.ike.komet.complexclause;
 
 import dev.ikm.tinkar.common.service.PrimitiveData;
 import dev.ikm.tinkar.common.util.uuid.UuidT5Generator;
+import dev.ikm.tinkar.common.id.PublicIds;
 import dev.ikm.tinkar.entity.EntityHandle;
+import dev.ikm.tinkar.entity.SemanticEntity;
+import dev.ikm.tinkar.entity.SemanticEntityVersion;
+import dev.ikm.tinkar.entity.graph.DiTreeEntity;
 import dev.ikm.tinkar.terms.ConceptFacade;
 import dev.ikm.tinkar.terms.EntityProxy;
+import dev.ikm.tinkar.terms.KernelTerm;
 import network.ike.komet.complexclause.bootstrap.ComplexClauseBootstrap;
 import network.ike.komet.complexclause.cql.ClauseToCqlProjector;
 import network.ike.komet.complexclause.eval.ClauseEvaluator;
@@ -74,6 +79,36 @@ class ComplexClausePluginTest {
         assertTrue(EntityHandle.get(ComplexClauseTerms.COMPLEX_CONCEPT_CLAUSE_PATTERN)
                         .entity().filter(e -> !e.canceled()).isPresent(),
                 "pattern entity is in the store");
+    }
+
+    // ---- Clause store: write, read back, re-author in place ---------------------------------------
+
+    @Test
+    void clauseStoreWritesAndReauthorsOneSemanticPerConcept() {
+        ConceptFacade constrained = concept("Clause store subject");
+        EntityProxy.Concept author = KernelTerm.USER;
+        EntityProxy.Concept module = KernelTerm.PRIMORDIAL_MODULE;
+        EntityProxy.Concept path = KernelTerm.DEVELOPMENT_PATH;
+
+        ClauseExpressionBuilder first = new ClauseExpressionBuilder();
+        first.setExpression(first.GreaterOrEqual(
+                first.Property("BMI determination", "value"), first.Quantity(40, "kg/m2")));
+        ClauseStore.writeClause(constrained, first.asDiTree(), author, module, path);
+
+        ClauseExpressionBuilder second = new ClauseExpressionBuilder();
+        second.setExpression(second.GreaterOrEqual(
+                second.Property("BMI determination", "value"), second.Quantity(35, "kg/m2")));
+        ClauseStore.writeClause(constrained, second.asDiTree(), author, module, path);
+
+        SemanticEntity<SemanticEntityVersion> semantic = EntityHandle.get(
+                PublicIds.of(ClauseStore.clauseSemanticUuid(constrained))).expectSemantic();
+        assertEquals(ComplexClauseTerms.COMPLEX_CONCEPT_CLAUSE_PATTERN.nid(), semantic.patternNid());
+        assertEquals(constrained.nid(), semantic.referencedComponentNid());
+        assertEquals(2, semantic.versions().size(), "re-authoring adds a version to the one clause semantic");
+        for (SemanticEntityVersion version : semantic.versions()) {
+            Clause comparison = ClauseExpression.from((DiTreeEntity) version.fieldValues().getFirst()).expression();
+            assertEquals(ClauseSemantic.GREATER_OR_EQUAL, comparison.clauseSemantic());
+        }
     }
 
     // ---- Builder -> DiTree -> read-back round-trip -----------------------------------------------

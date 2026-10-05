@@ -17,15 +17,13 @@ package network.ike.komet.complexclause;
 
 import dev.ikm.tinkar.common.id.PublicIds;
 import dev.ikm.tinkar.common.util.uuid.UuidT5Generator;
-import dev.ikm.tinkar.composer.Composer;
-import dev.ikm.tinkar.composer.Session;
-import dev.ikm.tinkar.composer.assembler.SemanticAssembler;
 import dev.ikm.tinkar.coordinate.stamp.calculator.Latest;
 import dev.ikm.tinkar.coordinate.stamp.calculator.StampCalculator;
 import dev.ikm.tinkar.entity.EntityService;
 import dev.ikm.tinkar.entity.SemanticEntity;
 import dev.ikm.tinkar.entity.SemanticEntityVersion;
 import dev.ikm.tinkar.entity.graph.DiTreeEntity;
+import dev.ikm.tinkar.entity.transaction.StampedWriter;
 import dev.ikm.tinkar.terms.ConceptFacade;
 import dev.ikm.tinkar.terms.EntityProxy;
 import dev.ikm.tinkar.terms.State;
@@ -85,17 +83,10 @@ public final class ClauseStore {
     public static void writeClause(ConceptFacade concept, DiTreeEntity clauseGraph,
                                    EntityProxy.Concept author, EntityProxy.Concept module, EntityProxy.Concept path) {
         ComplexClauseBootstrap.ensureBootstrapped();
-        EntityProxy reference = concept instanceof EntityProxy entityProxy
-                ? entityProxy
-                : EntityProxy.Concept.make(concept.publicId());
-        EntityProxy.Semantic semantic = EntityProxy.Semantic.make(PublicIds.of(clauseSemanticUuid(concept)));
-        Composer composer = new Composer("complex-clause-write");
-        Session session = composer.open(State.ACTIVE, author, module, path);
-        session.compose((SemanticAssembler assembler) -> assembler
-                .semantic(semantic)
-                .reference(reference)
-                .pattern(ComplexClauseTerms.COMPLEX_CONCEPT_CLAUSE_PATTERN)
-                .fieldValues(values -> values.add(clauseGraph)));
-        composer.commitSession(session);
+        try (StampedWriter writer = StampedWriter.open("complex-clause-write", State.ACTIVE, author, module, path)) {
+            writer.semantic(PublicIds.of(clauseSemanticUuid(concept)),
+                    ComplexClauseTerms.COMPLEX_CONCEPT_CLAUSE_PATTERN, concept.publicId(), clauseGraph);
+            writer.commit();
+        }
     }
 }
