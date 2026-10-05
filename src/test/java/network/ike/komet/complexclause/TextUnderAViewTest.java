@@ -15,6 +15,8 @@
  */
 package network.ike.komet.complexclause;
 
+import dev.ikm.komet.terms.KometTerm;
+import dev.ikm.tinkar.terms.KernelTerm;
 import dev.ikm.tinkar.common.id.IntIds;
 import dev.ikm.tinkar.common.id.PublicIds;
 import dev.ikm.tinkar.common.service.PrimitiveData;
@@ -34,7 +36,6 @@ import dev.ikm.tinkar.entity.transaction.Transaction;
 import dev.ikm.tinkar.terms.ConceptFacade;
 import dev.ikm.tinkar.terms.EntityProxy;
 import dev.ikm.tinkar.terms.State;
-import dev.ikm.tinkar.terms.TinkarTerm;
 import network.ike.komet.complexclause.bootstrap.ComplexClauseBootstrap;
 import network.ike.komet.complexclause.cql.ClauseToCqlProjector;
 import network.ike.komet.complexclause.model.Clause;
@@ -109,17 +110,17 @@ class TextUnderAViewTest {
 
     @Test
     void theNameIsTheDescriptionTheViewSelects() {
-        int nid = TinkarTerm.ENGLISH_LANGUAGE.nid();
+        int nid = KernelTerm.ENGLISH_LANGUAGE.nid();
         String selected = view.getDescriptionText(nid).orElseThrow();
 
-        assertEquals(selected, ConceptText.name(TinkarTerm.ENGLISH_LANGUAGE, view));
+        assertEquals(selected, ConceptText.name(KernelTerm.ENGLISH_LANGUAGE, view));
         assertEquals(selected, ConceptText.name(EntityProxy.Concept.make(nid), view),
                 "a proxy made from the nid alone, as a stored clause holds it");
     }
 
     @Test
     void whenTheViewSelectsNoneTheNameIsTheStoresOwnDescription() {
-        int nid = TinkarTerm.ENGLISH_LANGUAGE.nid();
+        int nid = KernelTerm.ENGLISH_LANGUAGE.nid();
         assertTrue(viewThatSelectsNoDescription.getDescriptionText(nid).isEmpty(),
                 "precondition: the view selects no description for the concept");
         // The calculator method that answers with the nid here; the assertion fails when
@@ -149,7 +150,7 @@ class TextUnderAViewTest {
 
     @Test
     void aStoredClauseIsExplicatedWithTheNamesTheViewSelects() {
-        ConceptFacade concept = TinkarTerm.ENGLISH_LANGUAGE;
+        ConceptFacade concept = KernelTerm.ENGLISH_LANGUAGE;
         String name = view.getDescriptionText(concept.nid()).orElseThrow();
         writeTheSampleClauseOn(concept);
 
@@ -196,14 +197,14 @@ class TextUnderAViewTest {
                 builder.Property("BMI determination", "value"), builder.Quantity(40, "kg/m2"));
         builder.setExpression(builder.Or(codedPath, computedPath));
         ClauseStore.writeClause(concept, (DiTreeEntity) builder.build().sourceGraph(),
-                TinkarTerm.USER, TinkarTerm.DEVELOPMENT_MODULE, TinkarTerm.DEVELOPMENT_PATH);
+                KernelTerm.USER, KometTerm.DEVELOPMENT_MODULE, KernelTerm.DEVELOPMENT_PATH);
     }
 
     /** Writes a concept with no description into the store, in one committed transaction. */
     private static ConceptRecord writeConceptWithNoDescription(UUID uuid) {
         Transaction transaction = Transaction.make("A concept with no description");
         StampEntity<?> stamp = transaction.getStamp(State.ACTIVE, System.currentTimeMillis(),
-                TinkarTerm.USER.nid(), TinkarTerm.DEVELOPMENT_MODULE.nid(), TinkarTerm.DEVELOPMENT_PATH.nid());
+                KernelTerm.USER.nid(), KometTerm.DEVELOPMENT_MODULE.nid(), KernelTerm.DEVELOPMENT_PATH.nid());
         ConceptRecord concept = ConceptRecord.build(uuid, stamp.versions().get(0));
         EntityService.get().putEntity(concept);
         transaction.addComponent(concept);
@@ -218,10 +219,10 @@ class TextUnderAViewTest {
      */
     private static ViewCalculator aViewThatSelectsNoDescription() {
         LanguageCoordinateRecord noDescriptions = LanguageCoordinateRecord.make(
-                TinkarTerm.ENGLISH_LANGUAGE.nid(),
-                IntIds.list.of(TinkarTerm.COMMENT_PATTERN.nid()),
-                IntIds.list.of(TinkarTerm.REGULAR_NAME_DESCRIPTION_TYPE.nid(),
-                        TinkarTerm.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.nid()),
+                KernelTerm.ENGLISH_LANGUAGE.nid(),
+                IntIds.list.of(KernelTerm.COMMENT_PATTERN.nid()),
+                IntIds.list.of(KernelTerm.REGULAR_NAME_DESCRIPTION_TYPE.nid(),
+                        KernelTerm.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.nid()),
                 IntIds.list.empty(),
                 IntIds.list.empty());
         ViewCoordinateRecord coordinate = ViewCoordinateRecord.make(

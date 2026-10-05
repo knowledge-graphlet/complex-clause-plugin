@@ -15,10 +15,10 @@
  */
 package network.ike.komet.complexclause.ui;
 
+import dev.ikm.tinkar.terms.KernelTerm;
 import dev.ikm.tinkar.common.id.PublicId;
 import dev.ikm.tinkar.common.service.PrimitiveData;
 import dev.ikm.tinkar.terms.ConceptFacade;
-import dev.ikm.tinkar.terms.TinkarTerm;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -54,13 +54,13 @@ class ComplexClauseAreaLoadTest {
 
     @Test
     void aUuidTheKnowledgeBaseHoldsIsLoaded() {
-        int nid = TinkarTerm.ENGLISH_LANGUAGE.nid();
+        int nid = KernelTerm.ENGLISH_LANGUAGE.nid();
         // Any of the concept's UUIDs loads it (English Language has three).
-        for (UUID uuid : TinkarTerm.ENGLISH_LANGUAGE.publicId().asUuidArray()) {
+        for (UUID uuid : KernelTerm.ENGLISH_LANGUAGE.publicId().asUuidArray()) {
             Optional<ConceptFacade> concept = ComplexClauseArea.conceptFor(uuid.toString());
 
             assertTrue(concept.isPresent(), "loaded through " + uuid);
-            assertTrue(PublicId.equals(TinkarTerm.ENGLISH_LANGUAGE.publicId(), concept.get().publicId()));
+            assertTrue(PublicId.equals(KernelTerm.ENGLISH_LANGUAGE.publicId(), concept.get().publicId()));
             assertEquals(nid, concept.get().nid());
         }
     }

@@ -15,6 +15,8 @@
  */
 package network.ike.komet.complexclause;
 
+import dev.ikm.komet.terms.KometTerm;
+import dev.ikm.tinkar.terms.KernelTerm;
 import dev.ikm.tinkar.common.id.PublicIds;
 import dev.ikm.tinkar.common.service.PrimitiveData;
 import dev.ikm.tinkar.common.util.uuid.UuidT5Generator;
@@ -25,7 +27,6 @@ import dev.ikm.tinkar.entity.transaction.Transaction;
 import dev.ikm.tinkar.terms.ConceptFacade;
 import dev.ikm.tinkar.terms.EntityProxy;
 import dev.ikm.tinkar.terms.State;
-import dev.ikm.tinkar.terms.TinkarTerm;
 import network.ike.komet.complexclause.cql.ClauseToCqlProjector;
 import network.ike.komet.complexclause.model.ClauseExpressionBuilder;
 import network.ike.komet.complexclause.model.ClauseSemantic;
@@ -189,12 +190,12 @@ class NidFreeTextTest {
 
     @Test
     void aVertexMeaningThatIsNoClauseOperatorIsNamedByItsUuidInTheMessage() {
-        int notAnOperator = TinkarTerm.ENGLISH_LANGUAGE.nid();
+        int notAnOperator = KernelTerm.ENGLISH_LANGUAGE.nid();
 
         IllegalStateException noOperator = assertThrows(IllegalStateException.class,
                 () -> ClauseSemantic.get(notAnOperator));
 
-        assertEquals("No clause semantic for " + TinkarTerm.ENGLISH_LANGUAGE.publicId().leastUuid(),
+        assertEquals("No clause semantic for " + KernelTerm.ENGLISH_LANGUAGE.publicId().leastUuid(),
                 noOperator.getMessage());
         assertNoNid("the message", noOperator.getMessage(), notAnOperator);
 
@@ -220,7 +221,7 @@ class NidFreeTextTest {
     private static ConceptRecord writeConceptWithNoDescription(UUID uuid) {
         Transaction transaction = Transaction.make("A concept with no description");
         StampEntity<?> stamp = transaction.getStamp(State.ACTIVE, System.currentTimeMillis(),
-                TinkarTerm.USER.nid(), TinkarTerm.DEVELOPMENT_MODULE.nid(), TinkarTerm.DEVELOPMENT_PATH.nid());
+                KernelTerm.USER.nid(), KometTerm.DEVELOPMENT_MODULE.nid(), KernelTerm.DEVELOPMENT_PATH.nid());
         ConceptRecord concept = ConceptRecord.build(uuid, stamp.versions().get(0));
         EntityService.get().putEntity(concept);
         transaction.addComponent(concept);
