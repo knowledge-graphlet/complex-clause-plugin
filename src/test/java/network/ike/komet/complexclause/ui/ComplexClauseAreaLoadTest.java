@@ -55,13 +55,14 @@ class ComplexClauseAreaLoadTest {
     @Test
     void aUuidTheKnowledgeBaseHoldsIsLoaded() {
         int nid = TinkarTerm.ENGLISH_LANGUAGE.nid();
-        UUID uuid = TinkarTerm.ENGLISH_LANGUAGE.publicId().asUuidArray()[0];
+        // Any of the concept's UUIDs loads it (English Language has three).
+        for (UUID uuid : TinkarTerm.ENGLISH_LANGUAGE.publicId().asUuidArray()) {
+            Optional<ConceptFacade> concept = ComplexClauseArea.conceptFor(uuid.toString());
 
-        Optional<ConceptFacade> concept = ComplexClauseArea.conceptFor(uuid.toString());
-
-        assertTrue(concept.isPresent());
-        assertTrue(PublicId.equals(TinkarTerm.ENGLISH_LANGUAGE.publicId(), concept.get().publicId()));
-        assertEquals(nid, concept.get().nid());
+            assertTrue(concept.isPresent(), "loaded through " + uuid);
+            assertTrue(PublicId.equals(TinkarTerm.ENGLISH_LANGUAGE.publicId(), concept.get().publicId()));
+            assertEquals(nid, concept.get().nid());
+        }
     }
 
     @Test

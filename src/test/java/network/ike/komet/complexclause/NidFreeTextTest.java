@@ -194,7 +194,7 @@ class NidFreeTextTest {
         IllegalStateException noOperator = assertThrows(IllegalStateException.class,
                 () -> ClauseSemantic.get(notAnOperator));
 
-        assertEquals("No clause semantic for " + TinkarTerm.ENGLISH_LANGUAGE.publicId().asUuidArray()[0],
+        assertEquals("No clause semantic for " + TinkarTerm.ENGLISH_LANGUAGE.publicId().leastUuid(),
                 noOperator.getMessage());
         assertNoNid("the message", noOperator.getMessage(), notAnOperator);
 

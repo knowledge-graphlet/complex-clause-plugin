@@ -22,7 +22,6 @@ import dev.ikm.tinkar.terms.ConceptFacade;
 import dev.ikm.tinkar.terms.EntityProxy;
 
 import java.util.Optional;
-import java.util.UUID;
 
 /**
  * The text forms of a concept in what this plugin writes: the CQL explicated from a clause, the
@@ -51,7 +50,7 @@ public final class ConceptText {
      *
      * @param concept the concept
      * @param view    the view that selects the description; may be null
-     * @return a description, else the first UUID, else {@link #UNIDENTIFIED}; never a nid
+     * @return a description, else the least UUID, else {@link #UNIDENTIFIED}; never a nid
      */
     public static String name(ConceptFacade concept, ViewCalculator view) {
         return selectedBy(view, concept)
@@ -60,30 +59,30 @@ public final class ConceptText {
     }
 
     /**
-     * The identifier written for a concept: its first UUID.
+     * The identifier written for a concept: its least UUID.
      *
      * @param concept the concept
-     * @return the first UUID as a string, or {@link #UNIDENTIFIED} when the concept has no
+     * @return the least UUID as a string, or {@link #UNIDENTIFIED} when the concept has no
      *         public id; never a nid
      */
     public static String identifier(ConceptFacade concept) {
         try {
-            return firstUuid(concept.publicId());
+            return leastUuid(concept.publicId());
         } catch (RuntimeException unresolvable) {
             return UNIDENTIFIED;
         }
     }
 
     /**
-     * The identifier written for a component known only by its nid: its first UUID.
+     * The identifier written for a component known only by its nid: its least UUID.
      *
      * @param nid the component's nid in the open store
-     * @return the first UUID as a string, or {@link #UNIDENTIFIED} when the store has no public
+     * @return the least UUID as a string, or {@link #UNIDENTIFIED} when the store has no public
      *         id for the nid; never a nid
      */
     public static String identifier(int nid) {
         try {
-            return firstUuid(PrimitiveData.publicId(nid));
+            return leastUuid(PrimitiveData.publicId(nid));
         } catch (RuntimeException unresolvable) {
             return UNIDENTIFIED;
         }
@@ -117,13 +116,16 @@ public final class ConceptText {
         }
     }
 
-    /** The first UUID of a public id, or {@link #UNIDENTIFIED} when it holds none. */
-    private static String firstUuid(PublicId publicId) {
-        if (publicId == null) {
+    /**
+     * The least UUID of a public id ({@link PublicId#leastUuid()}), or {@link #UNIDENTIFIED} when
+     * it holds none. Any of its UUIDs identifies the component; the least keeps the text
+     * independent of the order the UUIDs are listed in.
+     */
+    private static String leastUuid(PublicId publicId) {
+        if (publicId == null || publicId.uuidCount() == 0) {
             return UNIDENTIFIED;
         }
-        UUID[] uuids = publicId.asUuidArray();
-        return uuids.length > 0 ? uuids[0].toString() : UNIDENTIFIED;
+        return publicId.leastUuid().toString();
     }
 
     /** A description that is present and not blank. */
