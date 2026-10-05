@@ -18,7 +18,7 @@ package network.ike.komet.complexclause.cql;
 import dev.ikm.tinkar.coordinate.view.calculator.ViewCalculator;
 import dev.ikm.tinkar.entity.EntityService;
 import dev.ikm.tinkar.terms.ConceptFacade;
-import dev.ikm.tinkar.terms.TinkarTerm;
+import dev.ikm.tinkar.terms.KernelTerm;
 import network.ike.komet.complexclause.ClauseStore;
 import network.ike.komet.complexclause.model.Clause;
 import network.ike.komet.complexclause.model.ClauseAdaptor;
@@ -111,7 +111,7 @@ public final class ClauseToCqlProjector {
                 new ClauseToCqlProjector(layer1 -> "<< " + ConceptText.name(layer1, calculator), calculator);
         String defineName = ConceptText.name(concept, calculator);
         boolean inferredPresent = EntityService.get().semanticsForComponentOfPattern(
-                concept.nid(), TinkarTerm.EL_PLUS_PLUS_INFERRED_AXIOMS_PATTERN.nid()).findAny().isPresent();
+                concept.nid(), KernelTerm.EL_PLUS_PLUS_INFERRED_AXIOMS_PATTERN.nid()).findAny().isPresent();
         String header = "";
         if (inferredPresent) {
             header = "// Layer 1 — value set from the inferred EL++ classification of \""

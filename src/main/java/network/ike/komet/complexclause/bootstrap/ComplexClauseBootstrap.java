@@ -15,6 +15,7 @@
  */
 package network.ike.komet.complexclause.bootstrap;
 
+import dev.ikm.komet.terms.KometTerm;
 import dev.ikm.tinkar.common.service.ServiceLifecycle;
 import dev.ikm.tinkar.composer.Composer;
 import dev.ikm.tinkar.composer.Session;
@@ -24,7 +25,7 @@ import dev.ikm.tinkar.composer.template.FullyQualifiedName;
 import dev.ikm.tinkar.entity.EntityHandle;
 import dev.ikm.tinkar.terms.EntityProxy;
 import dev.ikm.tinkar.terms.State;
-import dev.ikm.tinkar.terms.TinkarTerm;
+import dev.ikm.tinkar.terms.KernelTerm;
 import network.ike.komet.complexclause.terms.ComplexClauseTerms;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,16 +80,16 @@ public class ComplexClauseBootstrap implements ServiceLifecycle {
         }
         LOG.info("Bootstrapping complex-clause pattern + ELM operator vocabulary");
         Composer composer = new Composer("complex-clause-bootstrap");
-        Session session = composer.open(State.ACTIVE, TinkarTerm.USER,
-                TinkarTerm.DEVELOPMENT_MODULE, TinkarTerm.DEVELOPMENT_PATH);
+        Session session = composer.open(State.ACTIVE, KernelTerm.USER,
+                KometTerm.DEVELOPMENT_MODULE, KernelTerm.DEVELOPMENT_PATH);
 
         for (EntityProxy.Concept proxy : ComplexClauseTerms.allConcepts()) {
             final EntityProxy.Concept concept = proxy;
             session.compose((ConceptAssembler assembler) -> assembler.concept(concept)
                     .attach(FullyQualifiedName.class, fqn -> fqn
-                            .language(TinkarTerm.ENGLISH_LANGUAGE)
+                            .language(KernelTerm.ENGLISH_LANGUAGE)
                             .text(concept.description())
-                            .caseSignificance(TinkarTerm.DESCRIPTION_NOT_CASE_SENSITIVE)));
+                            .caseSignificance(KernelTerm.DESCRIPTION_NOT_CASE_SENSITIVE)));
         }
 
         session.compose((PatternAssembler assembler) -> assembler
@@ -96,11 +97,11 @@ public class ComplexClauseBootstrap implements ServiceLifecycle {
                 .meaning(ComplexClauseTerms.COMPLEX_CONCEPT_CLAUSE)
                 .purpose(ComplexClauseTerms.COMPUTABLE_LOGIC)
                 .fieldDefinition(ComplexClauseTerms.CLAUSE_DEFINITION_GRAPH,
-                        ComplexClauseTerms.COMPUTABLE_LOGIC, TinkarTerm.DITREE_FIELD)
+                        ComplexClauseTerms.COMPUTABLE_LOGIC, KernelTerm.DITREE_FIELD)
                 .attach(FullyQualifiedName.class, fqn -> fqn
-                        .language(TinkarTerm.ENGLISH_LANGUAGE)
+                        .language(KernelTerm.ENGLISH_LANGUAGE)
                         .text("Complex Concept Clause Pattern")
-                        .caseSignificance(TinkarTerm.DESCRIPTION_NOT_CASE_SENSITIVE)));
+                        .caseSignificance(KernelTerm.DESCRIPTION_NOT_CASE_SENSITIVE)));
 
         composer.commitSession(session);
         LOG.info("Complex-clause vocabulary bootstrap committed: {} concepts + 1 pattern",
