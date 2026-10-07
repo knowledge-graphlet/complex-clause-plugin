@@ -82,7 +82,7 @@ public final class EvaluationContext {
      * @param valueSetClassNid  the Layer-1 class whose subsumption set is the value set
      * @return present {@code true}/{@code false} when determinable, empty when no view is available
      */
-    public Optional<Boolean> isMember(int conceptNid, int valueSetClassNid) {
+    public Optional<Boolean> isMember(long conceptNid, long valueSetClassNid) {
         if (calculator == null) {
             return Optional.empty();
         }

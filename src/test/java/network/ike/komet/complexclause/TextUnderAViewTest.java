@@ -17,7 +17,7 @@ package network.ike.komet.complexclause;
 
 import dev.ikm.komet.terms.KometTerm;
 import dev.ikm.tinkar.terms.KernelTerm;
-import dev.ikm.tinkar.common.id.IntIds;
+import dev.ikm.tinkar.common.id.LongIds;
 import dev.ikm.tinkar.common.id.PublicIds;
 import dev.ikm.tinkar.common.service.PrimitiveData;
 import dev.ikm.tinkar.common.util.uuid.UuidT5Generator;
@@ -83,7 +83,7 @@ class TextUnderAViewTest {
 
     private static ViewCalculator view;
     private static ViewCalculator viewThatSelectsNoDescription;
-    private static int undescribedNid;
+    private static long undescribedNid;
 
     @BeforeAll
     static void startDatastoreWithTheStarterData() {
@@ -110,7 +110,7 @@ class TextUnderAViewTest {
 
     @Test
     void theNameIsTheDescriptionTheViewSelects() {
-        int nid = KernelTerm.ENGLISH_LANGUAGE.nid();
+        long nid = KernelTerm.ENGLISH_LANGUAGE.nid();
         String selected = view.getDescriptionText(nid).orElseThrow();
 
         assertEquals(selected, ConceptText.name(KernelTerm.ENGLISH_LANGUAGE, view));
@@ -120,12 +120,12 @@ class TextUnderAViewTest {
 
     @Test
     void whenTheViewSelectsNoneTheNameIsTheStoresOwnDescription() {
-        int nid = KernelTerm.ENGLISH_LANGUAGE.nid();
+        long nid = KernelTerm.ENGLISH_LANGUAGE.nid();
         assertTrue(viewThatSelectsNoDescription.getDescriptionText(nid).isEmpty(),
                 "precondition: the view selects no description for the concept");
         // The calculator method that answers with the nid here; the assertion fails when
         // tinkar-core stops, which is the moment to reconsider ConceptText.
-        assertEquals(Integer.toString(nid), viewThatSelectsNoDescription.getDescriptionTextOrNid(nid));
+        assertEquals(Long.toString(nid), viewThatSelectsNoDescription.getDescriptionTextOrNid(nid));
 
         String name = ConceptText.name(EntityProxy.Concept.make(nid), viewThatSelectsNoDescription);
 
@@ -220,11 +220,11 @@ class TextUnderAViewTest {
     private static ViewCalculator aViewThatSelectsNoDescription() {
         LanguageCoordinateRecord noDescriptions = LanguageCoordinateRecord.make(
                 KernelTerm.ENGLISH_LANGUAGE.nid(),
-                IntIds.list.of(KernelTerm.COMMENT_PATTERN.nid()),
-                IntIds.list.of(KernelTerm.REGULAR_NAME_DESCRIPTION_TYPE.nid(),
+                LongIds.list.of(KernelTerm.COMMENT_PATTERN.nid()),
+                LongIds.list.of(KernelTerm.REGULAR_NAME_DESCRIPTION_TYPE.nid(),
                         KernelTerm.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.nid()),
-                IntIds.list.empty(),
-                IntIds.list.empty());
+                LongIds.list.empty(),
+                LongIds.list.empty());
         ViewCoordinateRecord coordinate = ViewCoordinateRecord.make(
                 Coordinates.Stamp.DevelopmentLatest(),
                 noDescriptions,
@@ -238,15 +238,15 @@ class TextUnderAViewTest {
      * Fails when the text holds a nid: a number of the shape the store assigns, a nid in one of
      * the forms it has been written in, or one of the given nids in decimal.
      */
-    private static void assertNoNid(String what, String text, int... nids) {
+    private static void assertNoNid(String what, String text, long... nids) {
         for (Pattern form : new Pattern[]{STORE_NID, ANGLE_BRACKET_NID, LABELLED_NID}) {
             Matcher matcher = form.matcher(text);
             if (matcher.find()) {
                 fail(what + " holds a nid: \"" + matcher.group() + "\" in:\n" + text);
             }
         }
-        for (int nid : nids) {
-            if (text.contains(Integer.toString(nid))) {
+        for (long nid : nids) {
+            if (text.contains(Long.toString(nid))) {
                 fail(what + " holds the nid " + nid + " in:\n" + text);
             }
         }

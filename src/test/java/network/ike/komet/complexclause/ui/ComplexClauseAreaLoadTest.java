@@ -54,7 +54,7 @@ class ComplexClauseAreaLoadTest {
 
     @Test
     void aUuidTheKnowledgeBaseHoldsIsLoaded() {
-        int nid = KernelTerm.ENGLISH_LANGUAGE.nid();
+        long nid = KernelTerm.ENGLISH_LANGUAGE.nid();
         // Any of the concept's UUIDs loads it (English Language has three).
         for (UUID uuid : KernelTerm.ENGLISH_LANGUAGE.publicId().asUuidArray()) {
             Optional<ConceptFacade> concept = ComplexClauseArea.conceptFor(uuid.toString());

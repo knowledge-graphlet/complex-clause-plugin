@@ -73,7 +73,7 @@ class NidFreeTextTest {
      * A nid the store has assigned to no component, so it has no public id for it: the store
      * numbers components upward from the bottom of the int range and never reaches the top.
      */
-    private static final int UNASSIGNED_NID = Integer.MAX_VALUE - 1;
+    private static final long UNASSIGNED_NID = Integer.MAX_VALUE - 1;
 
     @BeforeAll
     static void startDatastore() {
@@ -190,7 +190,7 @@ class NidFreeTextTest {
 
     @Test
     void aVertexMeaningThatIsNoClauseOperatorIsNamedByItsUuidInTheMessage() {
-        int notAnOperator = KernelTerm.ENGLISH_LANGUAGE.nid();
+        long notAnOperator = KernelTerm.ENGLISH_LANGUAGE.nid();
 
         IllegalStateException noOperator = assertThrows(IllegalStateException.class,
                 () -> ClauseSemantic.get(notAnOperator));
@@ -202,7 +202,7 @@ class NidFreeTextTest {
         IllegalStateException unidentified = assertThrows(IllegalStateException.class,
                 () -> ClauseSemantic.get(UNASSIGNED_NID));
         assertEquals("No clause semantic for unidentified component", unidentified.getMessage());
-        assertFalse(unidentified.getMessage().contains(Integer.toString(UNASSIGNED_NID)));
+        assertFalse(unidentified.getMessage().contains(Long.toString(UNASSIGNED_NID)));
     }
 
     // ---- Helpers ---------------------------------------------------------------------------------
@@ -233,15 +233,15 @@ class NidFreeTextTest {
      * Fails when the text holds a nid: a number of the shape the store assigns, a nid in one of
      * the forms it has been written in, or one of the given nids in decimal.
      */
-    private static void assertNoNid(String what, String text, int... nids) {
+    private static void assertNoNid(String what, String text, long... nids) {
         for (Pattern form : new Pattern[]{STORE_NID, ANGLE_BRACKET_NID, LABELLED_NID}) {
             Matcher matcher = form.matcher(text);
             if (matcher.find()) {
                 fail(what + " holds a nid: \"" + matcher.group() + "\" in:\n" + text);
             }
         }
-        for (int nid : nids) {
-            if (text.contains(Integer.toString(nid))) {
+        for (long nid : nids) {
+            if (text.contains(Long.toString(nid))) {
                 fail(what + " holds the nid " + nid + " in:\n" + text);
             }
         }

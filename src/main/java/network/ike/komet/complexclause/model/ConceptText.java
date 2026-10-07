@@ -80,7 +80,7 @@ public final class ConceptText {
      * @return the least UUID as a string, or {@link #UNIDENTIFIED} when the store has no public
      *         id for the nid; never a nid
      */
-    public static String identifier(int nid) {
+    public static String identifier(long nid) {
         try {
             return leastUuid(PrimitiveData.publicId(nid));
         } catch (RuntimeException unresolvable) {

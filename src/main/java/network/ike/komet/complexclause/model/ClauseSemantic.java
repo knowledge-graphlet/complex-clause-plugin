@@ -53,7 +53,7 @@ public enum ClauseSemantic {
     /** The meaning concept stored as the vertex's {@code meaningNid}. */
     public final ConceptFacade meaning;
     /** The meaning concept's nid (resolved at class-load). */
-    public final int nid;
+    public final long nid;
 
     ClauseSemantic(ConceptFacade meaning) {
         this.meaning = meaning;
@@ -67,7 +67,7 @@ public enum ClauseSemantic {
      * @return the matching operator kind
      * @throws IllegalStateException if the nid is not a known clause operator
      */
-    public static ClauseSemantic get(int meaningNid) {
+    public static ClauseSemantic get(long meaningNid) {
         for (ClauseSemantic semantic : values()) {
             if (semantic.nid == meaningNid) {
                 return semantic;
