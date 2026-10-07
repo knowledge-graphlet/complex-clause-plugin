@@ -17,10 +17,14 @@ package network.ike.komet.complexclause;
 
 import dev.ikm.tinkar.common.service.PrimitiveData;
 import dev.ikm.tinkar.common.util.uuid.UuidT5Generator;
-import dev.ikm.tinkar.component.Component;
-import dev.ikm.tinkar.entity.EntityService;
+import dev.ikm.tinkar.common.id.PublicIds;
+import dev.ikm.tinkar.entity.EntityHandle;
+import dev.ikm.tinkar.entity.SemanticEntity;
+import dev.ikm.tinkar.entity.SemanticEntityVersion;
+import dev.ikm.tinkar.entity.graph.DiTreeEntity;
 import dev.ikm.tinkar.terms.ConceptFacade;
 import dev.ikm.tinkar.terms.EntityProxy;
+import dev.ikm.tinkar.terms.KernelTerm;
 import network.ike.komet.complexclause.bootstrap.ComplexClauseBootstrap;
 import network.ike.komet.complexclause.cql.ClauseToCqlProjector;
 import network.ike.komet.complexclause.eval.ClauseEvaluator;
@@ -34,7 +38,6 @@ import network.ike.komet.complexclause.model.ClauseSemantic;
 import network.ike.komet.complexclause.terms.ComplexClauseTerms;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -46,23 +49,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * Validates the complex-clause model, vocabulary bootstrap, CQL projection, and native three-valued
  * evaluation against an in-memory Tinkar datastore.
  */
-@Disabled("""
-        Pre-existing plugin-IT service-discovery gap (not app code): the @BeforeAll startDatastore \
-        throws "No controller found with name: Load Ephemeral Store" under surefire's classpath \
-        runner. PrimitiveData.selectControllerByName resolves DataServiceController via plain \
-        ServiceLoader, which does not see the ephemeral controller the way tinkar's custom runtime \
-        loader does. Every @Test here depends on that datastore, so the whole class is skipped. \
-        Re-enable once the plugin test harness registers the ephemeral controller for the classpath \
-        runner.""")
 class ComplexClausePluginTest {
 
     @BeforeAll
     static void startDatastore() {
-        // Classpath test mode (ike-parent's surefire default): the ephemeral DataServiceController and
-        // the ExecutorController are registered via test-resource META-INF/services. CachingService is
-        // deliberately NOT registered — clearAll() would otherwise drive ExecutorProvider's reset(),
-        // whose PluggableService.first(Controller.class) only resolves under tinkar's custom runtime
-        // loader, not plain ServiceLoader.
+        // Classpath test mode (ike-parent's surefire default): the ephemeral store's controller is
+        // registered in src/test/resources/META-INF/services, because its jar declares it only in
+        // module-info. The other controllers come from the provider jars' own registrations.
         PrimitiveData.selectControllerByName("Load Ephemeral Store");
         PrimitiveData.start();
     }
@@ -83,9 +76,39 @@ class ComplexClausePluginTest {
         ComplexClauseBootstrap.ensureBootstrapped();
         assertTrue(ComplexClauseBootstrap.isBootstrapped(), "pattern present after bootstrap");
         assertFalse(ComplexClauseBootstrap.ensureBootstrapped(), "second bootstrap is a no-op");
-        assertTrue(EntityService.get()
-                        .getEntity((Component) ComplexClauseTerms.COMPLEX_CONCEPT_CLAUSE_PATTERN).isPresent(),
+        assertTrue(EntityHandle.get(ComplexClauseTerms.COMPLEX_CONCEPT_CLAUSE_PATTERN)
+                        .entity().filter(e -> !e.canceled()).isPresent(),
                 "pattern entity is in the store");
+    }
+
+    // ---- Clause store: write, read back, re-author in place ---------------------------------------
+
+    @Test
+    void clauseStoreWritesAndReauthorsOneSemanticPerConcept() {
+        ConceptFacade constrained = concept("Clause store subject");
+        EntityProxy.Concept author = KernelTerm.USER;
+        EntityProxy.Concept module = KernelTerm.PRIMORDIAL_MODULE;
+        EntityProxy.Concept path = KernelTerm.DEVELOPMENT_PATH;
+
+        ClauseExpressionBuilder first = new ClauseExpressionBuilder();
+        first.setExpression(first.GreaterOrEqual(
+                first.Property("BMI determination", "value"), first.Quantity(40, "kg/m2")));
+        ClauseStore.writeClause(constrained, first.asDiTree(), author, module, path);
+
+        ClauseExpressionBuilder second = new ClauseExpressionBuilder();
+        second.setExpression(second.GreaterOrEqual(
+                second.Property("BMI determination", "value"), second.Quantity(35, "kg/m2")));
+        ClauseStore.writeClause(constrained, second.asDiTree(), author, module, path);
+
+        SemanticEntity<SemanticEntityVersion> semantic = EntityHandle.get(
+                PublicIds.of(ClauseStore.clauseSemanticUuid(constrained))).expectSemantic();
+        assertEquals(ComplexClauseTerms.COMPLEX_CONCEPT_CLAUSE_PATTERN.nid(), semantic.patternNid());
+        assertEquals(constrained.nid(), semantic.referencedComponentNid());
+        assertEquals(2, semantic.versions().size(), "re-authoring adds a version to the one clause semantic");
+        for (SemanticEntityVersion version : semantic.versions()) {
+            Clause comparison = ClauseExpression.from((DiTreeEntity) version.fieldValues().getFirst()).expression();
+            assertEquals(ClauseSemantic.GREATER_OR_EQUAL, comparison.clauseSemantic());
+        }
     }
 
     // ---- Builder -> DiTree -> read-back round-trip -----------------------------------------------

@@ -15,17 +15,13 @@
  */
 package network.ike.komet.complexclause.bootstrap;
 
+import dev.ikm.komet.terms.KometTerm;
 import dev.ikm.tinkar.common.service.ServiceLifecycle;
-import dev.ikm.tinkar.component.Component;
-import dev.ikm.tinkar.composer.Composer;
-import dev.ikm.tinkar.composer.Session;
-import dev.ikm.tinkar.composer.assembler.ConceptAssembler;
-import dev.ikm.tinkar.composer.assembler.PatternAssembler;
-import dev.ikm.tinkar.composer.template.FullyQualifiedName;
-import dev.ikm.tinkar.entity.EntityService;
+import dev.ikm.tinkar.entity.EntityHandle;
+import dev.ikm.tinkar.entity.transaction.StampedWriter;
 import dev.ikm.tinkar.terms.EntityProxy;
 import dev.ikm.tinkar.terms.State;
-import dev.ikm.tinkar.terms.TinkarTerm;
+import dev.ikm.tinkar.terms.KernelTerm;
 import network.ike.komet.complexclause.terms.ComplexClauseTerms;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,8 +61,8 @@ public class ComplexClauseBootstrap implements ServiceLifecycle {
 
     /** @return {@code true} once the complex-clause pattern is present in the datastore. */
     public static boolean isBootstrapped() {
-        return EntityService.get()
-                .getEntity((Component) ComplexClauseTerms.COMPLEX_CONCEPT_CLAUSE_PATTERN).isPresent();
+        return EntityHandle.get(ComplexClauseTerms.COMPLEX_CONCEPT_CLAUSE_PATTERN)
+                .entity().filter(e -> !e.canceled()).isPresent();
     }
 
     /**
@@ -79,31 +75,20 @@ public class ComplexClauseBootstrap implements ServiceLifecycle {
             return false;
         }
         LOG.info("Bootstrapping complex-clause pattern + ELM operator vocabulary");
-        Composer composer = new Composer("complex-clause-bootstrap");
-        Session session = composer.open(State.ACTIVE, TinkarTerm.USER,
-                TinkarTerm.DEVELOPMENT_MODULE, TinkarTerm.DEVELOPMENT_PATH);
-
-        for (EntityProxy.Concept proxy : ComplexClauseTerms.allConcepts()) {
-            final EntityProxy.Concept concept = proxy;
-            session.compose((ConceptAssembler assembler) -> assembler.concept(concept)
-                    .attach(FullyQualifiedName.class, fqn -> fqn
-                            .language(TinkarTerm.ENGLISH_LANGUAGE)
-                            .text(concept.description())
-                            .caseSignificance(TinkarTerm.DESCRIPTION_NOT_CASE_SENSITIVE)));
+        try (StampedWriter writer = StampedWriter.open("complex-clause-bootstrap", State.ACTIVE,
+                KernelTerm.USER, KometTerm.DEVELOPMENT_MODULE, KernelTerm.DEVELOPMENT_PATH)) {
+            for (EntityProxy.Concept concept : ComplexClauseTerms.allConcepts()) {
+                writer.concept(concept);
+                writer.fullyQualifiedName(concept, concept.description());
+            }
+            writer.pattern(ComplexClauseTerms.COMPLEX_CONCEPT_CLAUSE_PATTERN,
+                    ComplexClauseTerms.COMPLEX_CONCEPT_CLAUSE, ComplexClauseTerms.COMPUTABLE_LOGIC,
+                    StampedWriter.field(ComplexClauseTerms.CLAUSE_DEFINITION_GRAPH,
+                            ComplexClauseTerms.COMPUTABLE_LOGIC, KernelTerm.DITREE_FIELD));
+            writer.fullyQualifiedName(ComplexClauseTerms.COMPLEX_CONCEPT_CLAUSE_PATTERN,
+                    "Complex Concept Clause Pattern");
+            writer.commit();
         }
-
-        session.compose((PatternAssembler assembler) -> assembler
-                .pattern(ComplexClauseTerms.COMPLEX_CONCEPT_CLAUSE_PATTERN)
-                .meaning(ComplexClauseTerms.COMPLEX_CONCEPT_CLAUSE)
-                .purpose(ComplexClauseTerms.COMPUTABLE_LOGIC)
-                .fieldDefinition(ComplexClauseTerms.CLAUSE_DEFINITION_GRAPH,
-                        ComplexClauseTerms.COMPUTABLE_LOGIC, TinkarTerm.DITREE_FIELD)
-                .attach(FullyQualifiedName.class, fqn -> fqn
-                        .language(TinkarTerm.ENGLISH_LANGUAGE)
-                        .text("Complex Concept Clause Pattern")
-                        .caseSignificance(TinkarTerm.DESCRIPTION_NOT_CASE_SENSITIVE)));
-
-        composer.commitSession(session);
         LOG.info("Complex-clause vocabulary bootstrap committed: {} concepts + 1 pattern",
                 ComplexClauseTerms.allConcepts().length);
         return true;

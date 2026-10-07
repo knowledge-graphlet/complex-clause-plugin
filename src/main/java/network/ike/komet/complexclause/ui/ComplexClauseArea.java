@@ -15,6 +15,8 @@
  */
 package network.ike.komet.complexclause.ui;
 
+import dev.ikm.komet.terms.KometTerm;
+import dev.ikm.komet.framework.ComponentLookup;
 import dev.ikm.komet.framework.view.ViewProperties;
 import dev.ikm.komet.layout.KlArea;
 import dev.ikm.komet.layout.area.AreaGridSettings;
@@ -25,12 +27,11 @@ import dev.ikm.komet.layout_engine.blueprint.SupplementalAreaBlueprint;
 import dev.ikm.komet.preferences.KometPreferences;
 import dev.ikm.tinkar.common.id.PublicId;
 import dev.ikm.tinkar.common.id.PublicIds;
-import dev.ikm.tinkar.common.service.PrimitiveData;
 import dev.ikm.tinkar.coordinate.view.calculator.ViewCalculator;
 import dev.ikm.tinkar.entity.graph.DiTreeEntity;
 import dev.ikm.tinkar.terms.ConceptFacade;
 import dev.ikm.tinkar.terms.EntityProxy;
-import dev.ikm.tinkar.terms.TinkarTerm;
+import dev.ikm.tinkar.terms.KernelTerm;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
@@ -53,8 +54,9 @@ import network.ike.komet.complexclause.model.Clause;
 import network.ike.komet.complexclause.model.ClauseAdaptor;
 import network.ike.komet.complexclause.model.ClauseExpression;
 import network.ike.komet.complexclause.model.ClauseExpressionBuilder;
+import network.ike.komet.complexclause.model.ConceptText;
 
-import java.util.UUID;
+import java.util.Optional;
 
 /**
  * A Journal tool area for authoring, visualizing, explicating, and evaluating complex-concept
@@ -169,9 +171,18 @@ public final class ComplexClauseArea extends SupplementalAreaBlueprint implement
         }
         try {
             ComplexClauseBootstrap.ensureBootstrapped();
-            PublicId publicId = PublicIds.of(UUID.fromString(text));
-            int nid = PrimitiveData.nid(publicId);
-            currentConcept = EntityProxy.Concept.make(PrimitiveData.text(nid), publicId);
+            Optional<ConceptFacade> concept = conceptFor(text);
+            if (concept.isEmpty()) {
+                // Nothing is loaded now: the field no longer names what was loaded before, and a
+                // clause must not be saved on a concept the field does not show.
+                currentConcept = null;
+                currentClause = null;
+                clauseTree.setRoot(null);
+                cqlOutput.clear();
+                status("No concept with that UUID in this knowledge base");
+                return;
+            }
+            currentConcept = concept.get();
             currentClause = ClauseStore.readClause(currentConcept, viewCalculator()).orElse(null);
             if (currentClause == null) {
                 status("No clause on this concept — use \"Insert sample\" to start one");
@@ -233,7 +244,7 @@ public final class ComplexClauseArea extends SupplementalAreaBlueprint implement
         try {
             DiTreeEntity graph = (DiTreeEntity) currentClause.sourceGraph();
             ClauseStore.writeClause(currentConcept, graph,
-                    TinkarTerm.USER, TinkarTerm.DEVELOPMENT_MODULE, TinkarTerm.DEVELOPMENT_PATH);
+                    KernelTerm.USER, KometTerm.DEVELOPMENT_MODULE, KernelTerm.DEVELOPMENT_PATH);
             status("Saved clause");
         } catch (RuntimeException e) {
             LOG.error("Save failed", e);
@@ -271,13 +282,28 @@ public final class ComplexClauseArea extends SupplementalAreaBlueprint implement
         verdictBadge.setStyle("-fx-padding: 2 10 2 10; -fx-background-radius: 10; -fx-background-color: #e0e0e0;");
     }
 
-    private String nameOf(ConceptFacade concept) {
-        var description = viewCalculator().getDescriptionText(concept.nid());
-        if (description.isPresent() && !description.get().isBlank()) {
-            return description.get();
+    /**
+     * The concept a typed UUID names in the open knowledge base.
+     *
+     * <p>The UUID comes from outside the knowledge base, so it may name a concept the knowledge
+     * base does not hold. Asking the store for its nid would assign one anyway, and the concept
+     * would then load, and a clause could be saved on it. The lookup assigns nothing for a UUID
+     * the knowledge base does not hold ({@link ComponentLookup}).
+     *
+     * @param uuidText the text of the concept field: one UUID
+     * @return the concept, or empty when the knowledge base does not hold it
+     * @throws IllegalArgumentException if the text is not a UUID
+     */
+    static Optional<ConceptFacade> conceptFor(String uuidText) {
+        PublicId publicId = PublicIds.of(uuidText);
+        if (ComponentLookup.nid(publicId).isEmpty()) {
+            return Optional.empty();
         }
-        String text = PrimitiveData.text(concept.nid());
-        return text != null ? text : ("nid:" + concept.nid());
+        return Optional.of(EntityProxy.Concept.make(publicId));
+    }
+
+    private String nameOf(ConceptFacade concept) {
+        return ConceptText.name(concept, viewCalculator());
     }
 
     private String describe(Clause clause) {
