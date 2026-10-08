@@ -131,7 +131,7 @@
         </dependency>
         <dependency>
             <groupId>dev.ikm.tinkar</groupId>
-            <artifactId>data-ephemeral-provider</artifactId>
+            <artifactId>data-spinedarray-provider</artifactId>
             <version>${tinkar.version}</version>
             <scope>test</scope>
         </dependency>

@@ -1,4 +1,3 @@
 # Test-classpath registration of the in-memory store the tests run against. The
-# data-ephemeral-provider jar declares its controller only in module-info, which is not
-# consulted on the classpath.
-dev.ikm.tinkar.provider.ephemeral.ProviderEphemeral$NewController
+# spined-array provider is registered here as well as in its own jar, for the classpath run.
+dev.ikm.tinkar.provider.spinedarray.SpinedArrayProvider$LoadController
