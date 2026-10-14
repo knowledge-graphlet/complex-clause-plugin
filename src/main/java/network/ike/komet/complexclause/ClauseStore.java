@@ -25,7 +25,6 @@ import dev.ikm.tinkar.entity.SemanticEntityVersion;
 import dev.ikm.tinkar.entity.graph.DiTreeEntity;
 import dev.ikm.tinkar.entity.transaction.StampedWriter;
 import dev.ikm.tinkar.terms.ConceptFacade;
-import dev.ikm.tinkar.terms.EntityProxy;
 import dev.ikm.tinkar.terms.State;
 import network.ike.komet.complexclause.bootstrap.ComplexClauseBootstrap;
 import network.ike.komet.complexclause.model.ClauseExpression;
@@ -81,11 +80,11 @@ public final class ClauseStore {
      * @param path        the STAMP path
      */
     public static void writeClause(ConceptFacade concept, DiTreeEntity clauseGraph,
-                                   EntityProxy.Concept author, EntityProxy.Concept module, EntityProxy.Concept path) {
+                                   ConceptFacade author, ConceptFacade module, ConceptFacade path) {
         ComplexClauseBootstrap.ensureBootstrapped();
         try (StampedWriter writer = StampedWriter.open("complex-clause-write", State.ACTIVE, author, module, path)) {
             writer.semantic(PublicIds.of(clauseSemanticUuid(concept)),
-                    ComplexClauseTerms.COMPLEX_CONCEPT_CLAUSE_PATTERN, concept.publicId(), clauseGraph);
+                    ComplexClauseTerms.COMPLEX_CONCEPT_CLAUSE_PATTERN.publicId(), concept.publicId(), clauseGraph);
             writer.commit();
         }
     }

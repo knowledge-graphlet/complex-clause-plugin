@@ -15,8 +15,9 @@
  */
 package network.ike.komet.complexclause;
 
-import dev.ikm.komet.terms.KometTerm;
-import dev.ikm.tinkar.terms.KernelTerm;
+import dev.ikm.tinkar.terms.KernelConcept;
+import dev.ikm.tinkar.terms.KernelPattern;
+import dev.ikm.komet.terms.KometConcept;
 import dev.ikm.tinkar.common.id.LongIds;
 import dev.ikm.tinkar.common.id.PublicIds;
 import dev.ikm.tinkar.common.service.PrimitiveData;
@@ -110,17 +111,17 @@ class TextUnderAViewTest {
 
     @Test
     void theNameIsTheDescriptionTheViewSelects() {
-        long nid = KernelTerm.ENGLISH_LANGUAGE.nid();
+        long nid = KernelConcept.ENGLISH_LANGUAGE.nid();
         String selected = view.getDescriptionText(nid).orElseThrow();
 
-        assertEquals(selected, ConceptText.name(KernelTerm.ENGLISH_LANGUAGE, view));
+        assertEquals(selected, ConceptText.name(KernelConcept.ENGLISH_LANGUAGE, view));
         assertEquals(selected, ConceptText.name(EntityProxy.Concept.make(nid), view),
                 "a proxy made from the nid alone, as a stored clause holds it");
     }
 
     @Test
     void whenTheViewSelectsNoneTheNameIsTheStoresOwnDescription() {
-        long nid = KernelTerm.ENGLISH_LANGUAGE.nid();
+        long nid = KernelConcept.ENGLISH_LANGUAGE.nid();
         assertTrue(viewThatSelectsNoDescription.getDescriptionText(nid).isEmpty(),
                 "precondition: the view selects no description for the concept");
         // The calculator method that answers with the nid here; the assertion fails when
@@ -150,7 +151,7 @@ class TextUnderAViewTest {
 
     @Test
     void aStoredClauseIsExplicatedWithTheNamesTheViewSelects() {
-        ConceptFacade concept = KernelTerm.ENGLISH_LANGUAGE;
+        ConceptFacade concept = KernelConcept.ENGLISH_LANGUAGE;
         String name = view.getDescriptionText(concept.nid()).orElseThrow();
         writeTheSampleClauseOn(concept);
 
@@ -197,14 +198,14 @@ class TextUnderAViewTest {
                 builder.Property("BMI determination", "value"), builder.Quantity(40, "kg/m2"));
         builder.setExpression(builder.Or(codedPath, computedPath));
         ClauseStore.writeClause(concept, (DiTreeEntity) builder.build().sourceGraph(),
-                KernelTerm.USER, KometTerm.DEVELOPMENT_MODULE, KernelTerm.DEVELOPMENT_PATH);
+                KernelConcept.USER, KometConcept.DEVELOPMENT_MODULE, KernelConcept.DEVELOPMENT_PATH);
     }
 
     /** Writes a concept with no description into the store, in one committed transaction. */
     private static ConceptRecord writeConceptWithNoDescription(UUID uuid) {
         Transaction transaction = Transaction.make("A concept with no description");
         StampEntity<?> stamp = transaction.getStamp(State.ACTIVE, System.currentTimeMillis(),
-                KernelTerm.USER.nid(), KometTerm.DEVELOPMENT_MODULE.nid(), KernelTerm.DEVELOPMENT_PATH.nid());
+                KernelConcept.USER.nid(), KometConcept.DEVELOPMENT_MODULE.nid(), KernelConcept.DEVELOPMENT_PATH.nid());
         ConceptRecord concept = ConceptRecord.build(uuid, stamp.versions().get(0));
         EntityService.get().putEntity(concept);
         transaction.addComponent(concept);
@@ -219,10 +220,10 @@ class TextUnderAViewTest {
      */
     private static ViewCalculator aViewThatSelectsNoDescription() {
         LanguageCoordinateRecord noDescriptions = LanguageCoordinateRecord.make(
-                KernelTerm.ENGLISH_LANGUAGE.nid(),
-                LongIds.list.of(KernelTerm.COMMENT_PATTERN.nid()),
-                LongIds.list.of(KernelTerm.REGULAR_NAME_DESCRIPTION_TYPE.nid(),
-                        KernelTerm.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.nid()),
+                KernelConcept.ENGLISH_LANGUAGE.nid(),
+                LongIds.list.of(KernelPattern.COMMENT_PATTERN.nid()),
+                LongIds.list.of(KernelConcept.REGULAR_NAME_DESCRIPTION_TYPE.nid(),
+                        KernelConcept.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.nid()),
                 LongIds.list.empty(),
                 LongIds.list.empty());
         ViewCoordinateRecord coordinate = ViewCoordinateRecord.make(

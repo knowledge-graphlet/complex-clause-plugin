@@ -15,8 +15,8 @@
  */
 package network.ike.komet.complexclause;
 
-import dev.ikm.komet.terms.KometTerm;
-import dev.ikm.tinkar.terms.KernelTerm;
+import dev.ikm.tinkar.terms.KernelConcept;
+import dev.ikm.komet.terms.KometConcept;
 import dev.ikm.tinkar.common.id.PublicIds;
 import dev.ikm.tinkar.common.service.PrimitiveData;
 import dev.ikm.tinkar.common.util.uuid.UuidT5Generator;
@@ -190,12 +190,12 @@ class NidFreeTextTest {
 
     @Test
     void aVertexMeaningThatIsNoClauseOperatorIsNamedByItsUuidInTheMessage() {
-        long notAnOperator = KernelTerm.ENGLISH_LANGUAGE.nid();
+        long notAnOperator = KernelConcept.ENGLISH_LANGUAGE.nid();
 
         IllegalStateException noOperator = assertThrows(IllegalStateException.class,
                 () -> ClauseSemantic.get(notAnOperator));
 
-        assertEquals("No clause semantic for " + KernelTerm.ENGLISH_LANGUAGE.publicId().leastUuid(),
+        assertEquals("No clause semantic for " + KernelConcept.ENGLISH_LANGUAGE.publicId().leastUuid(),
                 noOperator.getMessage());
         assertNoNid("the message", noOperator.getMessage(), notAnOperator);
 
@@ -221,7 +221,7 @@ class NidFreeTextTest {
     private static ConceptRecord writeConceptWithNoDescription(UUID uuid) {
         Transaction transaction = Transaction.make("A concept with no description");
         StampEntity<?> stamp = transaction.getStamp(State.ACTIVE, System.currentTimeMillis(),
-                KernelTerm.USER.nid(), KometTerm.DEVELOPMENT_MODULE.nid(), KernelTerm.DEVELOPMENT_PATH.nid());
+                KernelConcept.USER.nid(), KometConcept.DEVELOPMENT_MODULE.nid(), KernelConcept.DEVELOPMENT_PATH.nid());
         ConceptRecord concept = ConceptRecord.build(uuid, stamp.versions().get(0));
         EntityService.get().putEntity(concept);
         transaction.addComponent(concept);

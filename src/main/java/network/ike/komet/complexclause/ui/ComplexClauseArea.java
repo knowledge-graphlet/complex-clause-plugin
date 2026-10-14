@@ -15,7 +15,6 @@
  */
 package network.ike.komet.complexclause.ui;
 
-import dev.ikm.komet.terms.KometTerm;
 import dev.ikm.komet.framework.ComponentLookup;
 import dev.ikm.komet.framework.view.ViewProperties;
 import dev.ikm.komet.layout.KlArea;
@@ -25,13 +24,14 @@ import dev.ikm.komet.layout.preferences.KlPreferencesFactory;
 import dev.ikm.komet.layout_engine.blueprint.StateAndContextBlueprint;
 import dev.ikm.komet.layout_engine.blueprint.SupplementalAreaBlueprint;
 import dev.ikm.komet.preferences.KometPreferences;
+import dev.ikm.komet.terms.KometConcept;
 import dev.ikm.tinkar.common.id.PublicId;
 import dev.ikm.tinkar.common.id.PublicIds;
 import dev.ikm.tinkar.coordinate.view.calculator.ViewCalculator;
 import dev.ikm.tinkar.entity.graph.DiTreeEntity;
 import dev.ikm.tinkar.terms.ConceptFacade;
 import dev.ikm.tinkar.terms.EntityProxy;
-import dev.ikm.tinkar.terms.KernelTerm;
+import dev.ikm.tinkar.terms.KernelConcept;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
@@ -244,7 +244,7 @@ public final class ComplexClauseArea extends SupplementalAreaBlueprint implement
         try {
             DiTreeEntity graph = (DiTreeEntity) currentClause.sourceGraph();
             ClauseStore.writeClause(currentConcept, graph,
-                    KernelTerm.USER, KometTerm.DEVELOPMENT_MODULE, KernelTerm.DEVELOPMENT_PATH);
+                    KernelConcept.USER, KometConcept.DEVELOPMENT_MODULE, KernelConcept.DEVELOPMENT_PATH);
             status("Saved clause");
         } catch (RuntimeException e) {
             LOG.error("Save failed", e);

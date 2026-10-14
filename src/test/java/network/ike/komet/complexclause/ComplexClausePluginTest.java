@@ -24,7 +24,7 @@ import dev.ikm.tinkar.entity.SemanticEntityVersion;
 import dev.ikm.tinkar.entity.graph.DiTreeEntity;
 import dev.ikm.tinkar.terms.ConceptFacade;
 import dev.ikm.tinkar.terms.EntityProxy;
-import dev.ikm.tinkar.terms.KernelTerm;
+import dev.ikm.tinkar.terms.KernelConcept;
 import network.ike.komet.complexclause.bootstrap.ComplexClauseBootstrap;
 import network.ike.komet.complexclause.cql.ClauseToCqlProjector;
 import network.ike.komet.complexclause.eval.ClauseEvaluator;
@@ -86,9 +86,9 @@ class ComplexClausePluginTest {
     @Test
     void clauseStoreWritesAndReauthorsOneSemanticPerConcept() {
         ConceptFacade constrained = concept("Clause store subject");
-        EntityProxy.Concept author = KernelTerm.USER;
-        EntityProxy.Concept module = KernelTerm.PRIMORDIAL_MODULE;
-        EntityProxy.Concept path = KernelTerm.DEVELOPMENT_PATH;
+        ConceptFacade author = KernelConcept.USER;
+        ConceptFacade module = KernelConcept.PRIMORDIAL_MODULE;
+        ConceptFacade path = KernelConcept.DEVELOPMENT_PATH;
 
         ClauseExpressionBuilder first = new ClauseExpressionBuilder();
         first.setExpression(first.GreaterOrEqual(
