@@ -62,4 +62,8 @@ module komet.complexclause {
             with network.ike.komet.complexclause.ui.ComplexClauseArea.Factory;
     provides dev.ikm.tinkar.common.service.ServiceLifecycle
             with network.ike.komet.complexclause.bootstrap.ComplexClauseBootstrap;
+    // The identity table of clause trees, which tinkar-core's write path correlates by
+    // (IKE-Network/ike-issues#1310).
+    provides dev.ikm.tinkar.entity.graph.VertexIdentityTable
+            with network.ike.komet.complexclause.model.ClauseIdentityTable;
 }
