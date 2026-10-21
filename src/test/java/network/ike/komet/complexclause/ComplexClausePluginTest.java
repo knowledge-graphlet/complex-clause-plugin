@@ -56,7 +56,7 @@ class ComplexClausePluginTest {
         // Classpath test mode (ike-parent's surefire default): the ephemeral store's controller is
         // registered in src/test/resources/META-INF/services, because its jar declares it only in
         // module-info. The other controllers come from the provider jars' own registrations.
-        PrimitiveData.selectControllerByName("Load Ephemeral Store");
+        PrimitiveData.selectControllerByName("Load Memory-Only 64-bit Store");
         PrimitiveData.start();
     }
 

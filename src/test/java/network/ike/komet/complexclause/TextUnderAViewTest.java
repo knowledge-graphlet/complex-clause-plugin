@@ -69,9 +69,6 @@ class TextUnderAViewTest {
 
     private static final File PB_STARTER_DATA = new File("target/data/ike-starter-set-reasoned-pb.zip");
 
-    /** A nid of the in-memory store in decimal: {@code Integer.MIN_VALUE} plus a small count. */
-    private static final Pattern STORE_NID = Pattern.compile("-2147[34]\\d{5}(?!\\d)");
-
     /** The form {@code PrimitiveData.text} writes for a component with no description. */
     private static final Pattern ANGLE_BRACKET_NID = Pattern.compile("<-?\\d+>");
 
@@ -91,7 +88,7 @@ class TextUnderAViewTest {
         assertTrue(PB_STARTER_DATA.exists(),
                 "Starter data must be present at " + PB_STARTER_DATA.getAbsolutePath()
                         + " (copied by maven-dependency-plugin in process-test-resources).");
-        PrimitiveData.selectControllerByName("Load Ephemeral Store");
+        PrimitiveData.selectControllerByName("Load Memory-Only 64-bit Store");
         PrimitiveData.start();
         long count = new LoadEntitiesFromProtobufFile(PB_STARTER_DATA).compute().getTotalCount();
         assertTrue(count > 0, "Should load entities from the starter-data protobuf file");
@@ -240,12 +237,13 @@ class TextUnderAViewTest {
      * the forms it has been written in, or one of the given nids in decimal.
      */
     private static void assertNoNid(String what, String text, long... nids) {
-        for (Pattern form : new Pattern[]{STORE_NID, ANGLE_BRACKET_NID, LABELLED_NID}) {
+        for (Pattern form : new Pattern[]{ANGLE_BRACKET_NID, LABELLED_NID}) {
             Matcher matcher = form.matcher(text);
             if (matcher.find()) {
                 fail(what + " holds a nid: \"" + matcher.group() + "\" in:\n" + text);
             }
         }
+        StoreNids.find(text).ifPresent(nid -> fail(what + " holds the store's nid " + nid + " in:\n" + text));
         for (long nid : nids) {
             if (text.contains(Long.toString(nid))) {
                 fail(what + " holds the nid " + nid + " in:\n" + text);

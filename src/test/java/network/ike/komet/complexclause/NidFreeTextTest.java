@@ -53,15 +53,11 @@ import static org.junit.jupiter.api.Assertions.fail;
  * the description its proxy was made with, and a concept with none is the case under test: it
  * used to be named by the store's default text, which is its nid in angle brackets.
  *
- * <p>The in-memory store numbers components upward from {@code Integer.MIN_VALUE + 1}, so in
- * decimal every nid it assigns is a minus sign and ten digits beginning {@code 21474} or
- * {@code 21473}. {@link #assertNoNid} looks for a number of that shape and for the forms a nid
- * has been written in: {@code <nid>} and {@code nid:N}.
+ * <p>{@link #assertNoNid} looks for a number the store holds an entity under ({@link StoreNids}),
+ * whatever the store's nid layout, and for the forms a nid has been written in: {@code <nid>}
+ * and {@code nid:N}.
  */
 class NidFreeTextTest {
-
-    /** A nid of the in-memory store in decimal: {@code Integer.MIN_VALUE} plus a small count. */
-    private static final Pattern STORE_NID = Pattern.compile("-2147[34]\\d{5}(?!\\d)");
 
     /** The form {@code PrimitiveData.text} writes for a component with no description. */
     private static final Pattern ANGLE_BRACKET_NID = Pattern.compile("<-?\\d+>");
@@ -71,13 +67,14 @@ class NidFreeTextTest {
 
     /**
      * A nid the store has assigned to no component, so it has no public id for it: the store
-     * numbers components upward from the bottom of the int range and never reaches the top.
+     * numbers components upward from the bottom of the int range and never reaches the top, and a
+     * 64-bit store's nids have a pattern sequence of at least 1 in their upper half, never 0.
      */
     private static final long UNASSIGNED_NID = Integer.MAX_VALUE - 1;
 
     @BeforeAll
     static void startDatastore() {
-        PrimitiveData.selectControllerByName("Load Ephemeral Store");
+        PrimitiveData.selectControllerByName("Load Memory-Only 64-bit Store");
         PrimitiveData.start();
     }
 
@@ -234,12 +231,13 @@ class NidFreeTextTest {
      * the forms it has been written in, or one of the given nids in decimal.
      */
     private static void assertNoNid(String what, String text, long... nids) {
-        for (Pattern form : new Pattern[]{STORE_NID, ANGLE_BRACKET_NID, LABELLED_NID}) {
+        for (Pattern form : new Pattern[]{ANGLE_BRACKET_NID, LABELLED_NID}) {
             Matcher matcher = form.matcher(text);
             if (matcher.find()) {
                 fail(what + " holds a nid: \"" + matcher.group() + "\" in:\n" + text);
             }
         }
+        StoreNids.find(text).ifPresent(nid -> fail(what + " holds the store's nid " + nid + " in:\n" + text));
         for (long nid : nids) {
             if (text.contains(Long.toString(nid))) {
                 fail(what + " holds the nid " + nid + " in:\n" + text);

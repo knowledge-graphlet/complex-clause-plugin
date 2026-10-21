@@ -1,3 +1,4 @@
 # Test-classpath registration of the in-memory store the tests run against. The
 # spined-array provider is registered here as well as in its own jar, for the classpath run. The other lifecycle controllers come from the provider jars.
 dev.ikm.tinkar.provider.spinedarray.SpinedArrayProvider$LoadController
+dev.ikm.tinkar.provider.spinedarray64.SpinedArray64Provider$LoadController

@@ -63,7 +63,7 @@ class ClauseIdentityTest {
 
     @BeforeAll
     static void startDatastore() {
-        PrimitiveData.selectControllerByName("Load Ephemeral Store");
+        PrimitiveData.selectControllerByName("Load Memory-Only 64-bit Store");
         PrimitiveData.start();
     }
 
