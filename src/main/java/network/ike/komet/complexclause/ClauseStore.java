@@ -82,6 +82,10 @@ public final class ClauseStore {
     public static void writeClause(ConceptFacade concept, DiTreeEntity clauseGraph,
                                    ConceptFacade author, ConceptFacade module, ConceptFacade path) {
         ComplexClauseBootstrap.ensureBootstrapped();
+        // The clause is about a concept: its nid is minted under the concept pattern if the store
+        // does not hold it yet, since the writer refuses a reference of no known kind
+        // (IKE-Network/ike-issues#1313).
+        EntityService.get().nidForConcept(concept.publicId());
         try (StampedWriter writer = StampedWriter.open("complex-clause-write", State.ACTIVE, author, module, path)) {
             writer.semantic(PublicIds.of(clauseSemanticUuid(concept)),
                     ComplexClauseTerms.COMPLEX_CONCEPT_CLAUSE_PATTERN.publicId(), concept.publicId(), clauseGraph);
