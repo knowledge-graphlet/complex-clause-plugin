@@ -15,6 +15,8 @@
  */
 package network.ike.komet.complexclause.ui;
 
+import java.io.File;
+import dev.ikm.tinkar.entity.load.LoadEntitiesFromProtobufFile;
 import dev.ikm.tinkar.common.id.PublicId;
 import dev.ikm.tinkar.common.service.PrimitiveData;
 import dev.ikm.tinkar.terms.ConceptFacade;
@@ -45,6 +47,8 @@ class ComplexClauseAreaLoadTest {
     static void startDatastore() {
         PrimitiveData.selectControllerByName("Load Memory-Only 64-bit Store");
         PrimitiveData.start();
+        // The starter set: the kernel concepts and patterns the clauses and their STAMPs refer to.
+        new LoadEntitiesFromProtobufFile(new File("target/data/ike-starter-set-reasoned-pb.zip")).compute();
     }
 
     @AfterAll
